@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroAir — Touchless 21-Hand Landmark Spatial Controller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- MediaPipe Hands & Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="spatial-shell">
+    <!-- Top HUD Navigation -->
+    <header class="spatial-header">
+      <div class="brand">
+        <div class="glow-orb"></div>
+        <div>
+          <h1>Aero<span>Air</span></h1>
+          <span class="sub">TOUCHLESS 21-LANDMARK SPATIAL COMPUTING CANVAS</span>
+        </div>
+      </div>
+
+      <!-- Telemetry Stats -->
+      <div class="telemetry-bar">
+        <div class="metric">
+          <span class="lbl">FPS</span>
+          <span class="val" id="metricFps">60</span>
+        </div>
+        <div class="metric">
+          <span class="lbl">LATENCY</span>
+          <span class="val" id="metricLatency">14 ms</span>
+        </div>
+        <div class="metric">
+          <span class="lbl">DETECTED GESTURE</span>
+          <span class="val gesture-pill" id="metricGesture">HOVER</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-hud" onclick="clearCanvas()">🗑️ CLEAR</button>
+        <button class="btn-hud btn-save" onclick="exportArtwork()">📸 EXPORT PNG</button>
+      </div>
+    </header>
+
+    <!-- Main Spatial Stage -->
+    <main class="spatial-stage">
+      <div class="camera-viewport">
+        <!-- Hidden webcam feed -->
+        <video id="webcam" playsinline style="display:none"></video>
+
+        <!-- Air Drawing Layer -->
+        <canvas id="paintCanvas"></canvas>
+
+        <!-- Skeletal Overlay Layer -->
+        <canvas id="handCanvas"></canvas>
+
+        <!-- Laser Pointer Reticle -->
+        <div id="airReticle" class="air-reticle"></div>
+
+        <!-- Camera Permission Overlay (shown until webcam starts) -->
+        <div id="permissionOverlay" class="permission-overlay">
+          <div class="overlay-card">
+            <span class="overlay-icon">👁️</span>
+            <h2>Enable Spatial Camera</h2>
+            <p>AeroAir processes 100% on-device inside your browser using WebAssembly. Zero video bytes are transmitted to any server.</p>
+            <button class="btn-start" onclick="startCamera()">INITIALIZE CAMERA</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Control Toolbelt -->
+      <aside class="toolbelt">
+        <div class="toolbelt-card">
+          <h3>PALETTE</h3>
+          <div class="color-picker" id="colorPicker">
+            <button class="color-dot active" style="--c: #00f0ff" onclick="setColor('#00f0ff', this)"></button>
+            <button class="color-dot" style="--c: #ec4899" onclick="setColor('#ec4899', this)"></button>
+            <button class="color-dot" style="--c: #a855f7" onclick="setColor('#a855f7', this)"></button>
+            <button class="color-dot" style="--c: #eab308" onclick="setColor('#eab308', this)"></button>
+            <button class="color-dot" style="--c: #10b981" onclick="setColor('#10b981', this)"></button>
+            <button class="color-dot" style="--c: #ffffff" onclick="setColor('#ffffff', this)"></button>
+          </div>
+        </div>
+
+        <div class="toolbelt-card">
+          <h3>BRUSH SIZE: <span id="brushSizeVal">6</span>px</h3>
+          <input type="range" id="brushSize" min="2" max="24" value="6" oninput="setBrushSize(this.value)">
+        </div>
+
+        <div class="toolbelt-card">
+          <h3>SPATIAL GESTURES</h3>
+          <div class="gesture-guide">
+            <div class="guide-item">
+              <span class="icon">👌</span>
+              <div><strong>Index Pinch</strong><span>Draw in 3D air</span></div>
+            </div>
+            <div class="guide-item">
+              <span class="icon">🖐️</span>
+              <div><strong>Open Palm</strong><span>Hover laser pointer</span></div>
+            </div>
+            <div class="guide-item">
+              <span class="icon">✌️</span>
+              <div><strong>Peace Sign</strong><span>Clear air canvas</span></div>
+            </div>
+            <div class="guide-item">
+              <span class="icon">👍</span>
+              <div><strong>Thumbs Up</strong><span>Celebratory sparkles</span></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="spatial-footer">
+      <span>🔒 100% Local GPU WebAssembly • MediaPipe 21-Landmark Model</span>
+      <span>Designed by Nilkanth Desai</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
