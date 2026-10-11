@@ -298,5 +298,73 @@ function updateFps() {
   }
 }
 
+let isSimMode = false;
+function startSimulationMode() {
+  document.getElementById('permissionOverlay').style.display = 'none';
+  isSimMode = true;
+  document.getElementById('metricGesture').textContent = "HOVER (SIM) 🖐️";
+
+  let simMouseDown = false;
+
+  window.addEventListener('mousedown', () => {
+    simMouseDown = true;
+    document.getElementById('metricGesture').textContent = "DRAWING (PINCH) ✍️";
+    const ret = document.getElementById('airReticle');
+    if (ret) ret.classList.add('pinching');
+  });
+
+  window.addEventListener('mouseup', () => {
+    simMouseDown = false;
+    lastDrawPoint = null;
+    document.getElementById('metricGesture').textContent = "HOVER (SIM) 🖐️";
+    const ret = document.getElementById('airReticle');
+    if (ret) ret.classList.remove('pinching');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isSimMode) return;
+    const rect = paintCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (x < 0 || x > rect.width || y < 0 || y > rect.height) return;
+
+    // Reticle
+    const reticle = document.getElementById('airReticle');
+    if (reticle) {
+      reticle.style.display = 'block';
+      reticle.style.left = `${x}px`;
+      reticle.style.top = `${y}px`;
+    }
+
+    // Mirrored point for un-mirrored canvas coords
+    const ptX = handCanvas.width - x;
+    const ptY = y;
+
+    // Draw simulated holographic fingertip node
+    handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+    handCtx.fillStyle = simMouseDown ? "#ec4899" : "#00f0ff";
+    handCtx.shadowColor = handCtx.fillStyle;
+    handCtx.shadowBlur = 12;
+    handCtx.beginPath();
+    handCtx.arc(ptX, ptY, simMouseDown ? 7 : 4, 0, Math.PI * 2);
+    handCtx.fill();
+
+    if (simMouseDown) {
+      paintPoint(ptX, ptY);
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'c' || e.key === 'C') {
+      clearCanvasWithFade();
+      document.getElementById('metricGesture').textContent = "CLEAR (V-SIGN) ✌️";
+    } else if (e.key === 't' || e.key === 'T') {
+      spawnSparkles(handCanvas.width / 2, handCanvas.height / 2);
+      document.getElementById('metricGesture').textContent = "SPARKLES 👍";
+    }
+  });
+}
+
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initElements);
